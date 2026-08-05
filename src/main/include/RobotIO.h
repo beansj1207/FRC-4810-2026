@@ -111,4 +111,19 @@ class RobotIO
       hardware::TalonFX m_LeftShooterMotor_Master{ 15 };       // Check CAN ID's with rest of Robot Hardware
       hardware::TalonFX m_RightShooterMotor_Follower{ 16 };    // Check CAN ID's with rest of Robot Hardware
       
+      // - JDS Arm Limit Accessor Method
+      inline bool GetArmLimit()
+      {return( m_ArmLimitSwitch.Get() );}
+
+      // - JDS Motor Limit Accessor Method
+      inline bool GetMotorLimit()
+      {return(m_MotorLimitSwitch.Get() );}
+
+      // Arm Hardware
+      hardware::TalonFX m_ArmMotor{ 14 }; 
+      frc::DigitalInput m_ArmLimitSwitch{ 2 };
+
+      // Motor Hardware
+      hardware::TalonFX m_Motor{ 14 };
+      frc::DigitalInput m_MotorLimitSwitch{ 2 };
 };

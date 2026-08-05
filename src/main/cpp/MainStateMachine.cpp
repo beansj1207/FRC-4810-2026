@@ -108,7 +108,7 @@ void MainStateMachine::Initialize(
    // the individual state machines so they can save it as well.
 
    m_pRobotIO = p_pRobotIO;
-   // m_Drivetrain.Initialize( p_pRobotIO );
+   //m_Drivetrain.Initialize( p_pRobotIO );
    m_Intake.Initialize( p_pRobotIO );
    m_Magazine.Initialize( p_pRobotIO );
    m_Turret.Initialize( p_pRobotIO );
@@ -116,6 +116,7 @@ void MainStateMachine::Initialize(
 
    m_pAgitateTimer = new frc::Timer();
    m_pAgitateTimer->Reset();
+   m_Arm.Initialize(p_pRobotIO);    //-JDS - Initailize Arm
 }
 
 //-------------------------------------------------------------------
@@ -130,6 +131,9 @@ void MainStateMachine::UpdateStatus()
    m_Drivetrain.Periodic();
    frc::SmartDashboard::PutBoolean("Drive field relative", driveIsFieldRelative);
    // }
+
+   m_Arm.UpdateInputStatus();       //-JDS - Update Arm Status
+
 }
 
 //-------------------------------------------------------------------
@@ -160,6 +164,7 @@ void MainStateMachine::Execute()
          m_Turret.Execute();
          m_Shooter.Execute();
          m_Intake.Execute();
+         m_Arm.Execute();
 
          // printf( "Main - Advancing To Idle State\n" );
          m_eState = RobotMain::eState::STATE_IDLE;
@@ -313,6 +318,50 @@ void MainStateMachine::Execute()
          //   printf( "Main - Advancing To Manual Rotating Turret Left\n" );
             m_eState = RobotMain::eState::STATE_MANUAL_TURRET_ROTATING_LEFT;
          }
+
+          //-JDS - Driver B Button - Arm Home
+          if (m_pRobotIO->m_DriveController.GetBButton())
+          {
+            m_Arm.Home();
+
+
+            m_Arm.Execute();
+
+            m_eState = RobotMain::eState::STATE_ARM_HOMING;
+          }
+          
+          //-JDS - Driver Y Button - Arm Manual Raise
+          if (m_pRobotIO->m_DriveController.GetYButton())
+          {
+            m_Arm.ManualRaise();
+
+
+            m_Arm.Execute();
+
+            m_eState = RobotMain::eState::STATE_ARM_MANUAL_RAISE;
+          }
+
+          //-JDS - Driver A Button - Arm Manual Lower
+          if (m_pRobotIO->m_DriveController.GetAButton())
+          {
+            m_Arm.ManualLower();
+
+
+            m_Arm.Execute();
+
+            m_eState = RobotMain::eState::STATE_ARM_MANUAL_LOWER;
+          }
+
+          //-JDS - Driver X Button - Arm Auto Raise
+          if (m_pRobotIO->m_DriveController.GetXButton())
+          {
+            m_Arm.AutoRaise();
+
+
+            m_Arm.Execute();
+
+            m_eState = RobotMain::eState::STATE_ARM_AUTO_RAISE;
+          }
       }
 
       // *===================================================================*
@@ -320,6 +369,71 @@ void MainStateMachine::Execute()
       // *                          Command States                           *
       // *                                                                   *
       // *===================================================================*
+
+
+      //-JDS - Arm States
+      // *------------------*
+      // * Arm Homing State *
+      // *------------------*
+      else if (m_eState == RobotMain::eState::STATE_ARM_HOMING)
+      {
+         m_Arm.Execute();
+         if (m_Arm.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+         
+      }
+      
+      // *----------------------*
+      // * Arm Auto Raise State *
+      // *----------------------*
+      else if(m_eState == RobotMain::eState::STATE_ARM_AUTO_RAISE)
+      {
+          m_Arm.Execute();
+         if (m_Arm.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+      }
+
+      // *------------------------*
+      // * Arm Manual Raise State *
+      // *------------------------*
+      else if(m_eState == RobotMain::eState::STATE_ARM_MANUAL_RAISE)
+      {
+         if (!m_pRobotIO->m_DriveController.GetYButton())
+         {
+            m_Arm.Stop();
+         }
+         
+         m_Arm.Execute();
+
+         if (m_Arm.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+         
+      }
+
+      // *------------------------*
+      // * Arm Manual Lower State *
+      // *------------------------*
+      else if (m_eState == RobotMain::eState::STATE_ARM_MANUAL_LOWER)
+      {
+         if (!m_pRobotIO->m_DriveController.GetAButton())
+         {
+            m_Arm.Stop();
+         }
+         
+         m_Arm.Execute();
+
+         if (m_Arm.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+      }
+      
 
       // Code to be added
 

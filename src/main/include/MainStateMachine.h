@@ -30,6 +30,8 @@
 #include "Shooter.h"                   // Shooter state machine class
                                        //    definition
 
+#include "Arm.h"                       //-JDS Arm State Machine Class
+
 // *------------------------------------------------*
 // * Top Level (Main) State Machine Enumerated Type *
 // *------------------------------------------------*
@@ -52,6 +54,12 @@ namespace RobotMain
       STATE_MAGAZINE_MANUAL_OUT = 11,
       STATE_MANUAL_TURRET_ROTATING_LEFT = 12,
       STATE_MANUAL_TURRET_ROTATING_RIGHT = 13,
+      //-JDS Arm States
+      STATE_ARM_HOMING = 14,
+      STATE_ARM_MANUAL_RAISE = 15,
+      STATE_ARM_MANUAL_LOWER = 16,
+      STATE_ARM_AUTO_RAISE = 17,
+
       STATE_ERROR = 99
    };
 
@@ -115,6 +123,7 @@ class MainStateMachine
       Shooter m_Shooter;
 
       bool driveIsFieldRelative = true;
+      Arm m_Arm;        //-JDS Arm Object Instance
 };
 
 #endif // MAIN_STATE_MACHINE_H_
