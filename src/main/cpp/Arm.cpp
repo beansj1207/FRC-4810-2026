@@ -61,10 +61,9 @@ void Arm::Execute()
                 m_pTimeoutTimer->Start();
 
                 //Set Motor Speed
-                
                 m_pRobotIO->m_ArmMotor.Set(arm::dHomingSpeed);
+                
                 //Transition to Homing State
-
                 m_eState = arm::eState::STATE_HOMING;
             }
 
@@ -82,10 +81,9 @@ void Arm::Execute()
                 m_pTimeoutTimer->Start();
 
                 //Set Motor Speed
-
-                 m_pRobotIO->m_ArmMotor.Set(arm::dManualRaiseSpeed);
+                m_pRobotIO->m_ArmMotor.Set(arm::dManualRaiseSpeed);
+                
                 //Transition to Manual Raise State
-
                 m_eState = arm::eState::STATE_MANUAL_RAISE;
             }
 
@@ -109,10 +107,9 @@ void Arm::Execute()
                 m_pTimeoutTimer->Start();
 
                 //Set Motor Speed
-
-                 m_pRobotIO->m_ArmMotor.Set(arm::dManuaLowerSpeed);
+                m_pRobotIO->m_ArmMotor.Set(arm::dManuaLowerSpeed);
+                
                 //Transition to Manual lower State
-
                 m_eState = arm::eState::STATE_MANUAL_LOWER;
             }
 
@@ -135,10 +132,9 @@ void Arm::Execute()
                 m_pTimeoutTimer->Start();
                 
                 //Set Motor Speed
-
-                 m_pRobotIO->m_ArmMotor.Set(arm::dAutoRaiseSpeed);
+                m_pRobotIO->m_ArmMotor.Set(arm::dAutoRaiseSpeed);
+                
                 //Transition to Auto Raise State
-
                 m_eState = arm::eState::STATE_AUTO_RAISE;
             }            
 
@@ -177,7 +173,7 @@ void Arm::Execute()
           }
            
         }
-
+  
         // **********************
         // * Manual Raise State *
         // **********************

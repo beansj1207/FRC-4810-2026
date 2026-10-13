@@ -117,6 +117,7 @@ void MainStateMachine::Initialize(
    m_pAgitateTimer = new frc::Timer();
    m_pAgitateTimer->Reset();
    m_Arm.Initialize(p_pRobotIO);    //-JDS - Initailize Arm
+   m_Motor.Initialize(p_pRobotIO);  //-JDS - Initailize Motor
 }
 
 //-------------------------------------------------------------------
@@ -133,7 +134,7 @@ void MainStateMachine::UpdateStatus()
    // }
 
    m_Arm.UpdateInputStatus();       //-JDS - Update Arm Status
-
+   m_Motor.UpdateInputStatus();     //-JDS - Update Motor Status
 }
 
 //-------------------------------------------------------------------
@@ -165,6 +166,7 @@ void MainStateMachine::Execute()
          m_Shooter.Execute();
          m_Intake.Execute();
          m_Arm.Execute();
+         m_Motor.Execute();
 
          // printf( "Main - Advancing To Idle State\n" );
          m_eState = RobotMain::eState::STATE_IDLE;
@@ -330,6 +332,7 @@ void MainStateMachine::Execute()
             m_eState = RobotMain::eState::STATE_ARM_HOMING;
           }
           
+
           //-JDS - Driver Y Button - Arm Manual Raise
           if (m_pRobotIO->m_DriveController.GetYButton())
           {
@@ -340,7 +343,7 @@ void MainStateMachine::Execute()
 
             m_eState = RobotMain::eState::STATE_ARM_MANUAL_RAISE;
           }
-
+          
           //-JDS - Driver A Button - Arm Manual Lower
           if (m_pRobotIO->m_DriveController.GetAButton())
           {
@@ -362,6 +365,40 @@ void MainStateMachine::Execute()
 
             m_eState = RobotMain::eState::STATE_ARM_AUTO_RAISE;
           }
+
+
+
+          //-JDS - Driver B Button - Motor Home
+          if (m_pRobotIO->m_DriveController.GetBButton())
+          {
+            m_Motor.Home();
+            m_Motor.Execute();
+            m_eState = RobotMain::eState::STATE_MOTOR_HOME;
+          }
+
+          //-JDS - Driver Y Button - Motor Manual Forward
+          if (m_pRobotIO->m_DriveController.GetYButton())
+          {
+            m_Motor.ManualForward();
+            m_Motor.Execute();
+            m_eState = RobotMain::eState::STATE_MANUAL_FORWARD;
+          }
+
+           //-JDS - Driver A Button - Motor Manual Reverse
+          if (m_pRobotIO->m_DriveController.GetAButton())
+          {
+            m_Motor.ManualReverse();
+            m_Motor.Execute();
+            m_eState = RobotMain::eState::STATE_MANUAL_REVERSE;
+          }
+
+          //-JDS - Driver X Button - Motor Auto Forward
+          if (m_pRobotIO->m_DriveController.GetXButton())
+          {
+            m_Motor.AutoForward();
+            m_Motor.Execute();
+            m_eState = RobotMain::eState::STATE_AUTO_FORWARD;
+          }
       }
 
       // *===================================================================*
@@ -370,7 +407,69 @@ void MainStateMachine::Execute()
       // *                                                                   *
       // *===================================================================*
 
+      //-JDS - Motor States
+      // *--------------------*
+      // * Motor Homing State *
+      // *--------------------*
+      else if (m_eState == RobotMain::eState::STATE_MOTOR_HOME)
+      {
+         m_Motor.Execute();
+         if (m_Motor.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+      }
 
+      // *--------------------------*
+      // * Motor Auto Forward State *
+      // *--------------------------*
+      else if (m_eState == RobotMain::eState::STATE_AUTO_FORWARD)
+      {
+         m_Motor.Execute();
+         if (m_Motor.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+      }
+      
+      // *----------------------------*
+      // * Motor Manual Forward State *
+      // *----------------------------*
+      else if (m_eState == RobotMain::eState::STATE_MANUAL_FORWARD)
+      {
+         if (!m_pRobotIO->m_DriveController.GetYButton())
+         {
+            m_pRobotIO->m_Motor.StopMotor();
+         }
+
+         m_Motor.Execute();
+
+         if (m_Motor.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+         
+      }
+      
+      // *--------------------------*
+      // * Motor Auto Forward State *
+      // *--------------------------*
+      else if (m_eState == RobotMain::eState::STATE_MANUAL_REVERSE)
+      {
+         if (!m_pRobotIO->m_DriveController.GetAButton())
+         {
+            m_pRobotIO->m_Motor.StopMotor();
+         }
+         
+         m_Motor.Execute();
+
+         if (m_Motor.IsIdle())
+         {
+            m_eState = RobotMain::eState::STATE_IDLE;
+         }
+         
+      }
+      
       //-JDS - Arm States
       // *------------------*
       // * Arm Homing State *
@@ -404,7 +503,7 @@ void MainStateMachine::Execute()
       {
          if (!m_pRobotIO->m_DriveController.GetYButton())
          {
-            m_Arm.Stop();
+            m_pRobotIO->m_ArmMotor.StopMotor();
          }
          
          m_Arm.Execute();
@@ -423,7 +522,7 @@ void MainStateMachine::Execute()
       {
          if (!m_pRobotIO->m_DriveController.GetAButton())
          {
-            m_Arm.Stop();
+            m_pRobotIO->m_Motor.StopMotor();
          }
          
          m_Arm.Execute();
